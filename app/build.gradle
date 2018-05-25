@@ -3,6 +3,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 27
@@ -14,6 +15,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -23,7 +25,7 @@ android {
     }
 }
 
-def supportLibVersion = '27.1.1'
+def supportLibVersion = '27.0.2'
 def rxjavaVersion = '2.1.7'
 def rxKotlinVersion = '2.2.0'
 def rxandroidVersion = '2.0.1'
@@ -44,8 +46,11 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxjava:$rxjavaVersion"
     implementation "io.reactivex.rxjava2:rxandroid:$rxandroidVersion"
     implementation "com.jakewharton.rxbinding2:rxbinding-support-v4:$rxBindingVersion"
+
     implementation "android.arch.lifecycle:runtime:$archComponentsVersion"
     implementation "android.arch.lifecycle:extensions:$archComponentsVersion"
+    kapt "android.arch.lifecycle:compiler:$archComponentsVersion"
+
     implementation "io.reactivex.rxjava2:rxkotlin:$rxKotlinVersion"
 
     testImplementation 'junit:junit:4.12'
