@@ -41,17 +41,17 @@ data class UserDetail(
         @SerializedName("name")
         val name: String,
         @SerializedName("company")
-        val company: String,
+        val company: String?,
         @SerializedName("blog")
         val blog: String,
         @SerializedName("location")
         val location: String,
         @SerializedName("email")
-        val email: String,
+        val email: String?,
         @SerializedName("hireable")
         val hireable: Boolean,
         @SerializedName("bio")
-        val bio: String,
+        val bio: String?,
         @SerializedName("public_repos")
         val publicRepos: Int,
         @SerializedName("public_gists")
