@@ -11,6 +11,7 @@ import android.widget.TextView
 import com.squareup.picasso.Picasso
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
 import maehara08.github_user_mvi.R
 import maehara08.github_user_mvi.mvibase.MviView
 import maehara08.github_user_mvi.util.GitHubUserViewModelFactory
@@ -63,8 +64,15 @@ class UserDetailFragment : Fragment(), MviView<UserDetailIntent, UserDetailViewS
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        disposables.add(viewModel.states().subscribe(this::render))
+        viewModel.states()
+                .subscribe(this::render)
+                .addTo(disposables)
         viewModel.processIntents(intents())
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        disposables.dispose()
     }
 
     override fun intents(): Observable<UserDetailIntent> {

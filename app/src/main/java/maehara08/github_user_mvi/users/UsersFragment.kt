@@ -14,6 +14,7 @@ import com.jakewharton.rxbinding2.support.v7.widget.scrollEvents
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
 import io.reactivex.subjects.PublishSubject
 import maehara08.github_user_mvi.R
 import maehara08.github_user_mvi.adapter.UserAdaper
@@ -55,7 +56,9 @@ class UsersFragment : Fragment(), MviView<UsersIntent, UsersViewState> {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        disposables.add(viewModel.states().subscribe(this::render))
+        viewModel.states()
+                .subscribe(this::render)
+                .addTo(disposables)
         viewModel.processIntents(intents())
         recyclerAdapter = UserAdaper(context!!, arrayListOf())
         layoutManager = LinearLayoutManager(context)
@@ -76,7 +79,12 @@ class UsersFragment : Fragment(), MviView<UsersIntent, UsersViewState> {
             context?.let {
                 startActivity(UserDetailActivity.createIntent(it, user.login))
             }
-        }
+        }.addTo(disposables)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        disposables.dispose()
     }
 
     override fun intents(): Observable<UsersIntent> {
