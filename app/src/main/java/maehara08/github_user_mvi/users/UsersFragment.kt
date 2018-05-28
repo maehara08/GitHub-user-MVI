@@ -18,6 +18,7 @@ import io.reactivex.subjects.PublishSubject
 import maehara08.github_user_mvi.R
 import maehara08.github_user_mvi.adapter.UserAdaper
 import maehara08.github_user_mvi.mvibase.MviView
+import maehara08.github_user_mvi.userdetail.UserDetailActivity
 import maehara08.github_user_mvi.util.GitHubUserViewModelFactory
 import maehara08.github_user_mvi.util.addScrollFilter
 
@@ -71,8 +72,11 @@ class UsersFragment : Fragment(), MviView<UsersIntent, UsersViewState> {
                         }
                     }
         }
-//        disposables.add
-//                listAdapter.taskClickObservable.subscribe { task -> showTaskDetailsUi(task.id) })
+        recyclerAdapter.userClickObservable.subscribe { user ->
+            context?.let {
+                startActivity(UserDetailActivity.createIntent(it, user.login))
+            }
+        }
     }
 
     override fun intents(): Observable<UsersIntent> {
@@ -80,17 +84,12 @@ class UsersFragment : Fragment(), MviView<UsersIntent, UsersViewState> {
                 initialIntent(),
                 refreshIntent(),
                 loadNextIntent()
-//                adapterIntents(),
-//                clearCompletedTaskIntent()).mergeWith(
-//                changeFilterIntent()
         )
     }
 
     override fun render(state: UsersViewState) {
         swipeRefreshLayout.isRefreshing = state.isLoading
         if (state.error != null) {
-//            showLoadingTasksError()
-
             isUntilRequest = false
 
             return
@@ -106,15 +105,6 @@ class UsersFragment : Fragment(), MviView<UsersIntent, UsersViewState> {
             }
 
             sinceId = state.since
-
-//            tasksView.visibility = View.VISIBLE
-//            noTasksView.visibility = View.GONE
-//
-//            when (state.tasksFilterType) {
-//                ACTIVE_TASKS -> showActiveFilterLabel()
-//                COMPLETED_TASKS -> showCompletedFilterLabel()
-//                else -> showAllFilterLabel()
-//            }
         }
         isUntilRequest = false
     }
