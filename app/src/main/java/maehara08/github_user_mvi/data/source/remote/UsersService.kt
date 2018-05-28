@@ -5,11 +5,13 @@ import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import io.reactivex.Single
 import maehara08.github_user_mvi.BuildConfig
 import maehara08.github_user_mvi.data.User
+import maehara08.github_user_mvi.data.UserDetail
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface UsersService {
@@ -34,4 +36,6 @@ interface UsersService {
     @GET("/users")
     fun getUsers(@Query("since") since: String): Single<List<User>>
 
+    @GET("/users/{username}")
+    fun getUserDetail(@Path("username") userMame: String): Single<UserDetail>
 }

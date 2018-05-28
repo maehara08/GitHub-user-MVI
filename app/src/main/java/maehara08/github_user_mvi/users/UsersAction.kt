@@ -7,10 +7,4 @@ sealed class UsersAction : MviAction {
             val since: String,
             val forceUpdate: Boolean
     ) : UsersAction()
-
-//    data class ActivateTaskAction(val user: Task) : TasksAction()
-//
-//    data class CompleteTaskAction(val task: Task) : TasksAction()
-
-//    object ClearCompletedTasksAction : TasksAction()
 }

@@ -9,15 +9,20 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.squareup.picasso.Picasso
+import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 import maehara08.github_user_mvi.R
 import maehara08.github_user_mvi.data.User
 
 class UserAdaper(private val context: Context,
-//                 private val itemClickListener: RecyclerViewHolder.ItemClickListener,
                  private var userList: ArrayList<User>
 ) : RecyclerView.Adapter<UserAdaper.RecyclerViewHolder>() {
 
     private var mRecyclerView: RecyclerView? = null
+
+    private val userClickSubject = PublishSubject.create<User>()
+
+    val userClickObservable: Observable<User> = userClickSubject
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView?) {
         super.onAttachedToRecyclerView(recyclerView)
@@ -50,7 +55,7 @@ class UserAdaper(private val context: Context,
 
         mView.setOnClickListener { view ->
             mRecyclerView?.let {
-                //                itemClickListener.onItemClick(view, it.getChildAdapterPosition(view))
+                userClickSubject.onNext(userList[it.getChildAdapterPosition(view)])
             }
         }
 
@@ -72,13 +77,7 @@ class UserAdaper(private val context: Context,
     fun isEmpty(): Boolean =
             userList.isEmpty()
 
-    class RecyclerViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-
-        // 独自に作成したListener
-        interface ItemClickListener {
-            fun onItemClick(view: View, position: Int)
-        }
-
+    inner class RecyclerViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val nameText: TextView = view.findViewById(R.id.item_user_name)
         val image: ImageView = view.findViewById(R.id.item_user_image)
 
