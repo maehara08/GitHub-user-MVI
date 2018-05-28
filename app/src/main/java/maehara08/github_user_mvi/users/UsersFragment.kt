@@ -10,13 +10,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.jakewharton.rxbinding2.support.v4.widget.RxSwipeRefreshLayout
+import com.jakewharton.rxbinding2.support.v7.widget.scrollEvents
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import maehara08.github_user_mvi.R
 import maehara08.github_user_mvi.adapter.UserAdaper
 import maehara08.github_user_mvi.mvibase.MviView
 import maehara08.github_user_mvi.util.GitHubUserViewModelFactory
+import maehara08.github_user_mvi.util.addScrollFilter
 
 class UsersFragment : Fragment(), MviView<UsersIntent, UsersViewState> {
     companion object {
@@ -26,6 +29,7 @@ class UsersFragment : Fragment(), MviView<UsersIntent, UsersViewState> {
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var recyclerView: RecyclerView
     private lateinit var recyclerAdapter: UserAdaper
+    private lateinit var layoutManager: LinearLayoutManager
 
     private val viewModel: UsersViewModel by lazy {
         ViewModelProviders
@@ -33,8 +37,13 @@ class UsersFragment : Fragment(), MviView<UsersIntent, UsersViewState> {
                 .get(UsersViewModel::class.java)
     }
     private val refreshIntentPublisher = PublishSubject.create<UsersIntent.RefreshIntent>()
+    private val loadNextIntentPublisher = PublishSubject.create<UsersIntent.LoadNextIntent>()
 
     private val disposables = CompositeDisposable()
+
+    // ええんか？
+    private var sinceId: String = "0"
+    private var isUntilRequest = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.users_fragment, container, false).apply {
@@ -48,9 +57,19 @@ class UsersFragment : Fragment(), MviView<UsersIntent, UsersViewState> {
         disposables.add(viewModel.states().subscribe(this::render))
         viewModel.processIntents(intents())
         recyclerAdapter = UserAdaper(context!!, arrayListOf())
+        layoutManager = LinearLayoutManager(context)
         recyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
+            layoutManager = this@UsersFragment.layoutManager
             adapter = recyclerAdapter
+            scrollEvents()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .addScrollFilter(this@UsersFragment.layoutManager)
+                    .subscribe { event ->
+                        if (!isUntilRequest) {
+                            isUntilRequest = true
+                            loadNext()
+                        }
+                    }
         }
 //        disposables.add
 //                listAdapter.taskClickObservable.subscribe { task -> showTaskDetailsUi(task.id) })
@@ -59,7 +78,8 @@ class UsersFragment : Fragment(), MviView<UsersIntent, UsersViewState> {
     override fun intents(): Observable<UsersIntent> {
         return Observable.merge(
                 initialIntent(),
-                refreshIntent()
+                refreshIntent(),
+                loadNextIntent()
 //                adapterIntents(),
 //                clearCompletedTaskIntent()).mergeWith(
 //                changeFilterIntent()
@@ -70,19 +90,22 @@ class UsersFragment : Fragment(), MviView<UsersIntent, UsersViewState> {
         swipeRefreshLayout.isRefreshing = state.isLoading
         if (state.error != null) {
 //            showLoadingTasksError()
+
+            isUntilRequest = false
+
             return
         }
 
-//        if (state.completedUsersCleared) showMessage(getString(R.string.completed_tasks_cleared))
-
         if (state.users.isEmpty()) {
-//            when (state.tasksFilterType) {
-//                ACTIVE_TASKS -> showNoActiveTasks()
-//                COMPLETED_TASKS -> showNoCompletedTasks()
-//                else -> showNoTasks()
-//            }
+            // hoge
         } else {
-            recyclerAdapter.replaceData(state.users)
+            if (state.forceUpdate) {
+                recyclerAdapter.replaceData(state.users)
+            } else {
+                recyclerAdapter.addData(state.users)
+            }
+
+            sinceId = state.since
 
 //            tasksView.visibility = View.VISIBLE
 //            noTasksView.visibility = View.GONE
@@ -93,6 +116,7 @@ class UsersFragment : Fragment(), MviView<UsersIntent, UsersViewState> {
 //                else -> showAllFilterLabel()
 //            }
         }
+        isUntilRequest = false
     }
 
     private fun initialIntent(): Observable<UsersIntent.InitialIntent> {
@@ -101,7 +125,14 @@ class UsersFragment : Fragment(), MviView<UsersIntent, UsersViewState> {
 
     private fun refreshIntent(): Observable<UsersIntent.RefreshIntent> {
         return RxSwipeRefreshLayout.refreshes(swipeRefreshLayout)
-                .map { UsersIntent.RefreshIntent(false) }
+                .map { UsersIntent.RefreshIntent(true) }
                 .mergeWith(refreshIntentPublisher)
+    }
+
+    private fun loadNextIntent(): Observable<UsersIntent.LoadNextIntent> =
+            loadNextIntentPublisher
+
+    private fun loadNext() {
+        loadNextIntentPublisher.onNext(UsersIntent.LoadNextIntent(sinceId))
     }
 }

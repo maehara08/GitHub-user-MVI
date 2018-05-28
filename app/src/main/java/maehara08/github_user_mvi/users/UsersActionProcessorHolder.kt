@@ -15,7 +15,7 @@ class UsersActionProcessorHolder(
                 actions.flatMap { action ->
                     usersRepository.getUsers(action.since)
                             .toObservable()
-                            .map { users -> LoadUsersResult.Success(users) }
+                            .map { users -> LoadUsersResult.Success(users, action.forceUpdate) }
                             .cast(LoadUsersResult::class.java)
                             .onErrorReturn(LoadUsersResult::Failure)
                             .subscribeOn(Schedulers.io())

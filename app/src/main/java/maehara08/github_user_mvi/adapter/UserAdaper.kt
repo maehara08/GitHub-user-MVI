@@ -14,7 +14,7 @@ import maehara08.github_user_mvi.data.User
 
 class UserAdaper(private val context: Context,
 //                 private val itemClickListener: RecyclerViewHolder.ItemClickListener,
-                 private var userList: List<User>
+                 private var userList: ArrayList<User>
 ) : RecyclerView.Adapter<UserAdaper.RecyclerViewHolder>() {
 
     private var mRecyclerView: RecyclerView? = null
@@ -58,9 +58,19 @@ class UserAdaper(private val context: Context,
     }
 
     fun replaceData(users: List<User>) {
-        this.userList = users
+        this.userList = ArrayList(users)
         notifyDataSetChanged()
     }
+
+    fun addData(users: List<User>) {
+        if (users.isNotEmpty()) {
+            userList.addAll(users)
+            notifyDataSetChanged()
+        }
+    }
+
+    fun isEmpty(): Boolean =
+            userList.isEmpty()
 
     class RecyclerViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 

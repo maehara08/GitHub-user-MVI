@@ -35,8 +35,9 @@ class UsersViewModel(
 
     private fun actionFromIntent(intent: UsersIntent): UsersAction {
         return when (intent) {
-            is UsersIntent.InitialIntent -> UsersAction.LoadUsersAction("0")
-            is UsersIntent.RefreshIntent -> UsersAction.LoadUsersAction("0")
+            is UsersIntent.InitialIntent -> UsersAction.LoadUsersAction("0", false)
+            is UsersIntent.RefreshIntent -> UsersAction.LoadUsersAction("0", intent.forceUpdate)
+            is UsersIntent.LoadNextIntent -> UsersAction.LoadUsersAction(intent.since, false)
         }
     }
 
@@ -59,11 +60,13 @@ class UsersViewModel(
                         previousState.copy(
                                 isLoading = false,
                                 users = result.users,
-                                error = null
+                                since = result.users.last().id.toString(),
+                                error = null,
+                                forceUpdate = result.forceUpdate
                         )
                     }
-                    is LoadUsersResult.Failure -> previousState.copy(isLoading = false, error = result.error)
-                    is LoadUsersResult.InFlight -> previousState.copy(isLoading = true)
+                    is LoadUsersResult.Failure -> previousState.copy(isLoading = false, error = result.error, users = arrayListOf())
+                    is LoadUsersResult.InFlight -> previousState.copy(isLoading = true, users = arrayListOf())
                 }
             }
         }

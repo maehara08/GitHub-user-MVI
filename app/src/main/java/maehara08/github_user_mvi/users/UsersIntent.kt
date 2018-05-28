@@ -7,6 +7,8 @@ sealed class UsersIntent : MviIntent {
 
     data class RefreshIntent(val forceUpdate: Boolean) : UsersIntent()
 
+    data class LoadNextIntent(val since: String) : UsersIntent()
+
 //    data class ActivateTaskIntent(val user: User) : UsersIntent()
 
 //    data class CompleteTaskIntent(val user: User) : UsersIntent()

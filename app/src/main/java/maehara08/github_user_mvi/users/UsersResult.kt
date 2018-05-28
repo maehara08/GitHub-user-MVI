@@ -5,7 +5,7 @@ import maehara08.github_user_mvi.mvibase.MviResult
 
 sealed class UsersResult : MviResult {
     sealed class LoadUsersResult : UsersResult() {
-        data class Success(val users: List<User>) : LoadUsersResult()
+        data class Success(val users: List<User>, val forceUpdate: Boolean) : LoadUsersResult()
         data class Failure(val error: Throwable) : LoadUsersResult()
         object InFlight : LoadUsersResult()
     }
