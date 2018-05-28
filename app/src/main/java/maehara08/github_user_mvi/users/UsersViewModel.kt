@@ -58,7 +58,8 @@ class UsersViewModel(
                     is LoadUsersResult.Success -> {
                         previousState.copy(
                                 isLoading = false,
-                                users = result.users
+                                users = result.users,
+                                error = null
                         )
                     }
                     is LoadUsersResult.Failure -> previousState.copy(isLoading = false, error = result.error)
@@ -66,14 +67,6 @@ class UsersViewModel(
                 }
             }
         }
-
-//        private fun filteredUsers(Users: List<Task>, filterType: UsersFilterType): List<Task> {
-//            return when (filterType) {
-//                ALL_Users -> Users
-//                ACTIVE_Users -> Users.filter(Task::active)
-//                COMPLETED_Users -> Users.filter(Task::completed)
-//            }
-//        }
     }
 
 }

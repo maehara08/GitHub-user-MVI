@@ -20,7 +20,7 @@ class UsersActionProcessorHolder(
                             .onErrorReturn(LoadUsersResult::Failure)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
-                            .startWith(UsersResult.LoadUsersResult.InFlight)
+                            .startWith(LoadUsersResult.InFlight)
                 }
             }
 
