@@ -35,7 +35,7 @@ data class UserDetail(
         @SerializedName("received_events_url")
         val receivedEventsUrl: String,
         @SerializedName("type")
-        val `type`: String,
+        val type: String,
         @SerializedName("site_admin")
         val siteAdmin: Boolean,
         @SerializedName("name")
